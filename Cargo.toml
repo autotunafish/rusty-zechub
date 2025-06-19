@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 bip0039 = "0.12.0"
+clearscreen = "4.0.1"
 curl = "0.4.48"
 dialoguer = "0.11.0"
 fs = "0.0.5"
