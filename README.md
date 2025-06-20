@@ -18,7 +18,7 @@ then
 
 ```bash
 cd rusty-zechub
-cargo run
+cargo run --release
 ```
 ***note***
 
