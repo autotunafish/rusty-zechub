@@ -7,6 +7,7 @@ use std::io::{Read, Result, Write};
 use std::process;
 use std::process::{Command, Stdio};
 use std::path::Path;
+use std::str::FromStr;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct BlockChainInfo {
@@ -112,6 +113,7 @@ fn display_menu() -> Result<()> {
         "Extract Supply Info",
         "Transaction Detail",
         "Block Detail",
+        "Peer Details",
         "Exit",
     ];
     let index = Select::new()
@@ -150,6 +152,10 @@ fn display_menu() -> Result<()> {
             getblock(block).unwrap();
         }
         6 => {
+            clear_terminal_screen();
+            getpeerinfo().unwrap();
+        }
+        7 => {
             cleanup().unwrap();
             process::exit(1);
         }
@@ -545,6 +551,94 @@ fn getblock(block: &str) -> Result<()> {
     display_menu().unwrap();
     Ok(())
 }
+fn getpeerinfo () -> Result<()> {
+    let mymethod = "getpeerinfo";
+    let body_string = format!(
+        "{{\"jsonrpc\": \"1.0\", \"id\":\"curltest\", \"method\": \"{}\", \"params\": []}}",
+        mymethod
+    );
+    let mut body = body_string.as_bytes();
+
+    let mut easy = Easy::new();
+    easy.url("http://127.0.0.1:8232").unwrap();
+    easy.post(true).unwrap();
+    easy.post_field_size(body.len() as u64).unwrap();
+
+    // Set the Content-Type header to application/json
+    let mut list = curl::easy::List::new();
+    list.append("Content-Type: application/json").unwrap();
+    easy.http_headers(list).unwrap();
+
+    let mut data = Vec::new();
+    {
+        // Create transfer in separate scope ...
+        let mut transfer = easy.transfer();
+
+        // Request body
+        transfer
+            .read_function(|buf| Ok(body.read(buf).unwrap_or(0)))
+            .unwrap();
+
+        // Response body
+        transfer
+            .write_function(|new_data| {
+                data.extend_from_slice(new_data);
+                Ok(new_data.len())
+            })
+            .unwrap();
+
+        transfer.perform().unwrap();
+        // .. to force drop it here, so we can use easy.response_code()
+    }
+
+    println!("Zebrad RPC    : {:#?}", mymethod);
+    println!("Response      :  {}", easy.response_code().unwrap());
+    println!("Received bytes:  {} \n", data.len());
+
+    if !data.is_empty() {
+        //println!("Bytes: {:?}", data);
+        //println!("As JSON: {}\n", String::from_utf8_lossy(&data));
+
+        let result = String::from_utf8_lossy(&data);
+
+        // Create a file to write to. Replace "output.json" with your desired file name.
+        let mut file = File::create("peer_output.json").unwrap();
+
+        // Write the JSON string to the file
+        file.write_all(result.as_bytes()).unwrap();
+    }
+
+    // Open output.json with jq to make pretty
+    let mut jq_child = Command::new("/usr/bin/jq")
+        .arg(".result.[].addr")
+        .arg("peer_output.json")
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .spawn()
+        .expect("test");
+
+    let mut stdout = jq_child.stdout.take().unwrap();
+    let mut newfile = File::create("peer_new.json").unwrap();
+    let mut buffer = String::new();
+
+    //Read jq .result output.json into a String
+    stdout.read_to_string(&mut buffer).expect("test");
+
+    println!("{}", buffer);
+
+    // Create a new file with result
+    newfile.write_all(buffer.as_bytes()).unwrap();
+    println!("\n");
+    
+    let file_path = "peer_new.json";
+    let my_json: String = std::fs::read_to_string(file_path).expect("Couldn't find or load that file.");
+   
+    println!("Current peer count: {:?}\n", my_json.lines().count());
+
+    display_menu().unwrap();
+
+    Ok(())
+}
 fn cleanup() -> std::io::Result<()> {
 
     if Path::new("output.json").exists() {
@@ -577,6 +671,12 @@ fn cleanup() -> std::io::Result<()> {
 
       if Path::new("block_output.json").exists() {
         std::fs::remove_file("block_output.json")?;
+    }else {};
+      if Path::new("peer_output.json").exists() {
+        std::fs::remove_file("peer_output.json")?;
+    }else {};
+      if Path::new("peer_new.json").exists() {
+        std::fs::remove_file("peer_new.json")?;
     }else {};
 
     Ok(())
