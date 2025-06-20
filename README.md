@@ -15,7 +15,7 @@ A playground for RUST.
 then
 
 ```bash
-cd rusty-sechub
+cd rusty-zechub
 cargo run
 ```
 ***note***
