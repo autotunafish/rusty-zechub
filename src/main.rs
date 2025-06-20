@@ -7,7 +7,7 @@ use std::io::{Read, Result, Write};
 use std::process;
 use std::process::{Command, Stdio};
 use std::path::Path;
-use std::str::FromStr;
+//use clap::{command, Arg};
 
 #[derive(Serialize, Deserialize, Debug)]
 struct BlockChainInfo {
@@ -143,13 +143,29 @@ fn display_menu() -> Result<()> {
         }
         4 => {
             clear_terminal_screen();
-            let mytxid = "e6726f9e4f4c627cd0f2efb5cf13e0a9537c17e13290d0e0cd828a60676c6183";
-            tx_details(mytxid).unwrap();
+            //let mytxid = "e6726f9e4f4c627cd0f2efb5cf13e0a9537c17e13290d0e0cd828a60676c6183";
+            println!("Enter your txid:\n");
+            let mut input: String = String::new(); // Create a string variable
+            std::io::stdin() // Get the standard input stream
+            .read_line(&mut input) // The read_line function reads data until it reaches a '\n' character
+            .expect("Unable to read Stdin"); // In case the read operation fails, it panics with the given message
+        
+            tx_details(&input.trim().to_string()).unwrap();
+        
         }
         5 => {
             clear_terminal_screen();
-            let block = "2964496";
-            getblock(block).unwrap();
+
+            //let match_result = command!().arg( Arg::new(input.as_mut_str())).get_matches();
+            //let block = match_result.get_one::<String>("block").unwrap(); //"1000";
+          
+            println!("Enter your block:\n");
+            let mut input: String = String::new(); // Create a string variable
+            std::io::stdin() // Get the standard input stream
+            .read_line(&mut input) // The read_line function reads data until it reaches a '\n' character
+            .expect("Unable to read Stdin"); // In case the read operation fails, it panics with the given message
+
+            getblock(&input.trim().to_string()).unwrap();
         }
         6 => {
             clear_terminal_screen();
@@ -471,11 +487,15 @@ fn tx_details(txid: &str) -> Result<()> {
     Ok(())
 }
 fn getblock(block: &str) -> Result<()> {
+
+    
     let mymethod = "getblock";
     let body_string = format!(
         "{{\"jsonrpc\": \"1.0\", \"id\":\"curltest\", \"method\": \"{}\", \"params\": [\"{}\",2]}}",
         mymethod, block
     );
+
+    println!("in function: {}", body_string);
     let mut body = body_string.as_bytes();
 
     let mut easy = Easy::new();
