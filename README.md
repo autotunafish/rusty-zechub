@@ -26,8 +26,8 @@ cargo run --release
 * uses `jq` for JSON formatting
   * `sudo apt install jq`
 
-![Screenshot_2025-06-19_22-32-45](https://github.com/user-attachments/assets/172810f9-decc-4146-bd30-971d6621a91e)
 
+![Screenshot_2025-06-21_14-10-54](https://github.com/user-attachments/assets/c2490a40-ab04-45a9-b999-e85674a740be)
 
 
 
