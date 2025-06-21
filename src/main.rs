@@ -120,6 +120,7 @@ fn display_menu(myserver: String) -> Result<()> {
         "Blockchain Detail",
         "Extract Supply Info",
         "Transaction Detail",
+        "Transaction Type",
         "Block Detail",
         "Peer Details",
         "Exit",
@@ -151,16 +152,28 @@ fn display_menu(myserver: String) -> Result<()> {
         }
         4 => {
             clear_terminal_screen();
-
             println!("Enter your txid:\n");
             let mut input: String = String::new(); // Create a string variable
             std::io::stdin() // Get the standard input stream
                 .read_line(&mut input) // The read_line function reads data until it reaches a '\n' character
                 .expect("Unable to read Stdin"); // In case the read operation fails, it panics with the given message
 
-            tx_details(myserver, &input.trim().to_string()).unwrap();
+            clear_terminal_screen();
+            tx_details(myserver, &input.trim().to_string(), false).unwrap();
         }
         5 => {
+            clear_terminal_screen();
+            println!("Enter your txid:\n");
+            let mut input: String = String::new(); // Create a string variable
+            std::io::stdin() // Get the standard input stream
+                .read_line(&mut input) // The read_line function reads data until it reaches a '\n' character
+                .expect("Unable to read Stdin"); // In case the read operation fails, it panics with the given message
+            
+            clear_terminal_screen();        
+            tx_details(myserver.clone(), &input.trim().to_string(), true).unwrap();
+            tx_type(myserver, "txid_new.json").unwrap();
+        }
+        6 => {
             clear_terminal_screen();
 
             //let match_result = command!().arg( Arg::new(input.as_mut_str())).get_matches();
@@ -174,11 +187,11 @@ fn display_menu(myserver: String) -> Result<()> {
 
             getblock(myserver, &input.trim().to_string()).unwrap();
         }
-        6 => {
+        7 => {
             clear_terminal_screen();
             getpeerinfo(myserver).unwrap();
         }
-        7 => {
+        8 => {
             clear_terminal_screen();
             cleanup().unwrap();
             process::exit(1);
@@ -411,7 +424,7 @@ fn deserialize(myaddress: String) -> Result<()> {
     display_menu(myaddress).unwrap();
     Ok(())
 }
-fn tx_details(myaddress: String, txid: &str) -> Result<()> {
+fn tx_details(myaddress: String, txid: &str, no_output: bool) -> Result<()> {
     let mymethod = "getrawtransaction";
     let body_string = format!(
         "{{\"jsonrpc\": \"1.0\", \"id\":\"curltest\", \"method\": \"{}\", \"params\": [\"{}\",1]}}",
@@ -451,9 +464,12 @@ fn tx_details(myaddress: String, txid: &str) -> Result<()> {
         // .. to force drop it here, so we can use easy.response_code()
     }
 
-    println!("Zebrad RPC    : {:#?}", mymethod);
-    println!("Response      :  {}", easy.response_code().unwrap());
-    println!("Received bytes:  {} \n", data.len());
+    if no_output {
+    } else {
+        println!("Zebrad RPC    : {:#?}", mymethod);
+        println!("Response      :  {}", easy.response_code().unwrap());
+        println!("Received bytes:  {} \n", data.len());
+    }
 
     if !data.is_empty() {
         //println!("Bytes: {:?}", data);
@@ -484,12 +500,20 @@ fn tx_details(myaddress: String, txid: &str) -> Result<()> {
     //Read jq .result output.json into a String
     stdout.read_to_string(&mut buffer).expect("test");
 
-    println!("{}", buffer);
+    if no_output {
+    } else {
+        println!("\n{}", buffer);
+    }
 
     // Create a new file with result
     newfile.write_all(buffer.as_bytes()).unwrap();
     println!("\n");
-    display_menu(myaddress).unwrap();
+
+    if no_output {
+
+    }else {
+        display_menu(myaddress).unwrap();
+    }
     Ok(())
 }
 fn getblock(myaddress: String, block: &str) -> Result<()> {
@@ -664,7 +688,7 @@ fn getpeerinfo(myaddress: String) -> Result<()> {
 
     Ok(())
 }
-fn cleanup() -> std::io::Result<()> {
+fn cleanup() -> Result<()> {
     if Path::new("output.json").exists() {
         std::fs::remove_file("output.json")?;
     } else {
@@ -717,4 +741,17 @@ fn cleanup() -> std::io::Result<()> {
 }
 fn clear_terminal_screen() {
     clearscreen::clear().unwrap();
+}
+fn tx_type(myaddress: String, tx_json: &str) -> Result<()> {
+
+    // Open output.json with jq to make pretty
+    let mut get_type_child = Command::new("bash");
+
+    get_type_child.arg("tx_type.sh").arg(tx_json);
+
+    // Execute the command and capture the output
+    let output = get_type_child.output().expect("Failed to execute command");
+    println!("\n{}", String::from_utf8_lossy(&output.stdout));
+    display_menu(myaddress).unwrap();
+    Ok(())
 }
