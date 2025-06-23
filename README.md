@@ -10,6 +10,7 @@ A playground for RUST.
   * Output current mempool with details
   * View transaction details given any txid
   * View block details given any block
+  * View block tx types (Transparent/Sapling/Orchard)
   * View peers connected to your node
 
 `git clone https://github.com/dismad/rusty-zechub.git`
