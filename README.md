@@ -9,8 +9,8 @@ A playground for RUST.
   * Extract size of Zebra node on disk
   * Output current mempool with details
   * View transaction details given any txid
+  * View transaction type(Transparent/Sapling/Orchard) given any txid
   * View block details given any block
-  * View block tx types (Transparent/Sapling/Orchard)
   * View peers connected to your node
 
 `git clone https://github.com/dismad/rusty-zechub.git`
