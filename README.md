@@ -24,13 +24,18 @@ cargo run --release
 ***note***
 
 * You will need a fully synced *zebrad* reachable via `http://127.0.0.1:8232`
+* `cargo install --git https://github.com/ZcashFoundation/zebra zebrad`
 
-zebrad.toml 
-``` 
+* Edit zebrad.toml 
+```
 [rpc]
 listen_addr = "127.0.0.1:8232"
 enable_cookie_auth = false
 ```
+* Start zebra:
+  
+  `zebrad start`
+
 * uses `jq` for JSON formatting
   * `sudo apt install jq`
 
