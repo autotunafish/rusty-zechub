@@ -6,6 +6,7 @@ A playground for RUST.
 * Output a random seed phrase
 * Working with Zebrad
   * Extract ZEC supply using Zebrad
+  * Exctract ZEC supply at any given block
   * Extract size of Zebra node on disk
   * Output current mempool with details
   * View transaction details given any txid
@@ -40,9 +41,9 @@ enable_cookie_auth = false
 * uses `jq` for JSON formatting
   * `sudo apt install jq`
 
-![Screenshot_2025-06-23_17-44-26](https://github.com/user-attachments/assets/549878b1-c39f-4632-82bc-ead26ebc9837)
 
 
+![Screenshot_2025-06-24_12-35-16](https://github.com/user-attachments/assets/2fb3b70d-0aa8-4b56-afce-ebe61b459853)
 
 
 
