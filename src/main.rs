@@ -121,7 +121,9 @@ fn display_menu(myserver: String) -> Result<()> {
         "Extract Supply Info",
         "Transaction Detail",
         "Transaction Type",
+        "Transaction Date",
         "Block Detail",
+        "Block Date",
         "Peer Details",
         "Exit",
     ];
@@ -135,22 +137,27 @@ fn display_menu(myserver: String) -> Result<()> {
 
     match choice {
         0 => {
+            //mnemonic
             clear_terminal_screen();
             display_mnemonic(myserver).unwrap();
         }
         1 => {
+            //visualize mempool
             clear_terminal_screen();
             visualize_mempool(myserver).unwrap();
         }
         2 => {
+            //blockchain detail
             clear_terminal_screen();
             getblockchaininfo(myserver, false);
         }
         3 => {
+            //extract supply info
             clear_terminal_screen();
             deserialize(myserver).unwrap();
         }
         4 => {
+            //tx detail
             clear_terminal_screen();
             println!("Enter your txid:\n");
             let mut input: String = String::new(); // Create a string variable
@@ -162,18 +169,31 @@ fn display_menu(myserver: String) -> Result<()> {
             tx_details(myserver, &input.trim().to_string(), false).unwrap();
         }
         5 => {
+            //tx type
             clear_terminal_screen();
             println!("Enter your txid:\n");
             let mut input: String = String::new(); // Create a string variable
             std::io::stdin() // Get the standard input stream
                 .read_line(&mut input) // The read_line function reads data until it reaches a '\n' character
                 .expect("Unable to read Stdin"); // In case the read operation fails, it panics with the given message
-            
-            clear_terminal_screen();        
+
+            clear_terminal_screen();
             tx_details(myserver.clone(), &input.trim().to_string(), true).unwrap();
             tx_type(myserver, "txid_new.json").unwrap();
         }
         6 => {
+            //tx date
+            clear_terminal_screen();
+            println!("Enter your txid:\n");
+            let mut input: String = String::new(); // Create a string variable
+            std::io::stdin() // Get the standard input stream
+                .read_line(&mut input) // The read_line function reads data until it reaches a '\n' character
+                .expect("Unable to read Stdin"); // In case the read operation fails, it panics with the given message
+            clear_terminal_screen();
+            tx_date(myserver, &input.trim().to_string()).unwrap();
+        }
+        7 => {
+            //block detail
             clear_terminal_screen();
 
             //let match_result = command!().arg( Arg::new(input.as_mut_str())).get_matches();
@@ -187,11 +207,24 @@ fn display_menu(myserver: String) -> Result<()> {
 
             getblock(myserver, &input.trim().to_string()).unwrap();
         }
-        7 => {
+        8 => {
+            // block date
+             clear_terminal_screen();
+            println!("Enter your block:\n");
+            let mut input: String = String::new(); // Create a string variable
+            std::io::stdin() // Get the standard input stream
+                .read_line(&mut input) // The read_line function reads data until it reaches a '\n' character
+                .expect("Unable to read Stdin"); // In case the read operation fails, it panics with the given message
+            clear_terminal_screen();
+            block_date(myserver, &input.trim().to_string()).unwrap();
+            
+        }
+        9 => {
+            // peer details
             clear_terminal_screen();
             getpeerinfo(myserver).unwrap();
         }
-        8 => {
+        10 => {
             clear_terminal_screen();
             cleanup().unwrap();
             process::exit(1);
@@ -510,8 +543,7 @@ fn tx_details(myaddress: String, txid: &str, no_output: bool) -> Result<()> {
     println!("\n");
 
     if no_output {
-
-    }else {
+    } else {
         display_menu(myaddress).unwrap();
     }
     Ok(())
@@ -743,7 +775,6 @@ fn clear_terminal_screen() {
     clearscreen::clear().unwrap();
 }
 fn tx_type(myaddress: String, tx_json: &str) -> Result<()> {
-
     // Open output.json with jq to make pretty
     let mut get_type_child = Command::new("bash");
 
@@ -751,6 +782,31 @@ fn tx_type(myaddress: String, tx_json: &str) -> Result<()> {
 
     // Execute the command and capture the output
     let output = get_type_child.output().expect("Failed to execute command");
+    println!("\n{}", String::from_utf8_lossy(&output.stdout));
+    display_menu(myaddress).unwrap();
+    Ok(())
+}
+fn tx_date(myaddress: String, tx_json: &str) -> Result<()> {
+
+        // Open output.json with jq to make pretty
+    let mut get_date_child = Command::new("bash");
+
+    get_date_child.arg("getDateFromTX.sh").arg(tx_json);
+
+    // Execute the command and capture the output
+    let output = get_date_child.output().expect("Failed to execute command");
+    println!("\n{}", String::from_utf8_lossy(&output.stdout));
+    display_menu(myaddress).unwrap();
+    Ok(())
+}
+fn block_date(myaddress: String, block: &str) -> Result<()> {
+        // Open output.json with jq to make pretty
+    let mut get_date_child = Command::new("bash");
+
+    get_date_child.arg("getDateFromBlock.sh").arg(block);
+
+    // Execute the command and capture the output
+    let output = get_date_child.output().expect("Failed to execute command");
     println!("\n{}", String::from_utf8_lossy(&output.stdout));
     display_menu(myaddress).unwrap();
     Ok(())
