@@ -40,8 +40,8 @@ enable_cookie_auth = false
 * uses `jq` for JSON formatting
   * `sudo apt install jq`
 
+![Screenshot_2025-06-23_17-44-26](https://github.com/user-attachments/assets/549878b1-c39f-4632-82bc-ead26ebc9837)
 
-![Screenshot_2025-06-21_14-10-54](https://github.com/user-attachments/assets/c2490a40-ab04-45a9-b999-e85674a740be)
 
 
 
