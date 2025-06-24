@@ -19,6 +19,16 @@ struct BlockChainInfo {
     #[serde(alias = "valuePools")]
     value_pools: Vec<NodeData>,
 }
+
+#[derive(Serialize, Deserialize, Debug)]
+
+struct BlockSupplyInfo {
+    height: i32,
+    #[serde(alias = "valuePools")]
+    value_pools: Vec<NodeData>,
+}
+
+
 #[derive(Serialize, Deserialize, Debug)]
 struct SupplyInfo {
     #[serde(alias = "chainValue")]
@@ -119,6 +129,7 @@ fn display_menu(myserver: String) -> Result<()> {
         "Visualize Mempool",
         "Blockchain Detail",
         "Extract Supply Info",
+        "Extract Supply Info at Block",
         "Transaction Detail",
         "Transaction Type",
         "Transaction Date",
@@ -157,6 +168,17 @@ fn display_menu(myserver: String) -> Result<()> {
             deserialize(myserver).unwrap();
         }
         4 => {
+            //extract supply info at given block
+            clear_terminal_screen();
+            println!("Enter your block:\n");
+            let mut input: String = String::new(); // Create a string variable
+            std::io::stdin() // Get the standard input stream
+                .read_line(&mut input) // The read_line function reads data until it reaches a '\n' character
+                .expect("Unable to read Stdin"); // In case the read operation fails, it panics with the given message
+            clear_terminal_screen();
+            deserialize_at_block(myserver,&input.trim().to_string()).unwrap();
+        }
+        5 => {
             //tx detail
             clear_terminal_screen();
             println!("Enter your txid:\n");
@@ -168,7 +190,7 @@ fn display_menu(myserver: String) -> Result<()> {
             clear_terminal_screen();
             tx_details(myserver, &input.trim().to_string(), false).unwrap();
         }
-        5 => {
+        6 => {
             //tx type
             clear_terminal_screen();
             println!("Enter your txid:\n");
@@ -181,7 +203,7 @@ fn display_menu(myserver: String) -> Result<()> {
             tx_details(myserver.clone(), &input.trim().to_string(), true).unwrap();
             tx_type(myserver, "txid_new.json").unwrap();
         }
-        6 => {
+        7 => {
             //tx date
             clear_terminal_screen();
             println!("Enter your txid:\n");
@@ -192,7 +214,7 @@ fn display_menu(myserver: String) -> Result<()> {
             clear_terminal_screen();
             tx_date(myserver, &input.trim().to_string()).unwrap();
         }
-        7 => {
+        8 => {
             //block detail
             clear_terminal_screen();
 
@@ -205,11 +227,11 @@ fn display_menu(myserver: String) -> Result<()> {
                 .read_line(&mut input) // The read_line function reads data until it reaches a '\n' character
                 .expect("Unable to read Stdin"); // In case the read operation fails, it panics with the given message
 
-            getblock(myserver, &input.trim().to_string()).unwrap();
+            getblock(myserver, &input.trim().to_string(),false).unwrap();
         }
-        8 => {
+        9 => {
             // block date
-             clear_terminal_screen();
+            clear_terminal_screen();
             println!("Enter your block:\n");
             let mut input: String = String::new(); // Create a string variable
             std::io::stdin() // Get the standard input stream
@@ -219,12 +241,12 @@ fn display_menu(myserver: String) -> Result<()> {
             block_date(myserver, &input.trim().to_string()).unwrap();
             
         }
-        9 => {
+        10 => {
             // peer details
             clear_terminal_screen();
             getpeerinfo(myserver).unwrap();
         }
-        10 => {
+        11 => {
             clear_terminal_screen();
             cleanup().unwrap();
             process::exit(1);
@@ -548,14 +570,18 @@ fn tx_details(myaddress: String, txid: &str, no_output: bool) -> Result<()> {
     }
     Ok(())
 }
-fn getblock(myaddress: String, block: &str) -> Result<()> {
+fn getblock(myaddress: String, block: &str, no_output: bool) -> Result<()> {
     let mymethod = "getblock";
     let body_string = format!(
         "{{\"jsonrpc\": \"1.0\", \"id\":\"curltest\", \"method\": \"{}\", \"params\": [\"{}\",2]}}",
         mymethod, block
     );
 
-    println!("in function: {}", body_string);
+     if no_output {
+    } else {
+        println!("in function: {}", body_string);
+    }
+
     let mut body = body_string.as_bytes();
 
     let mut easy = Easy::new();
@@ -590,9 +616,12 @@ fn getblock(myaddress: String, block: &str) -> Result<()> {
         // .. to force drop it here, so we can use easy.response_code()
     }
 
-    println!("Zebrad RPC    : {:#?}", mymethod);
-    println!("Response      :  {}", easy.response_code().unwrap());
-    println!("Received bytes:  {} \n", data.len());
+    if no_output {
+    } else {
+        println!("Zebrad RPC    : {:#?}", mymethod);
+        println!("Response      :  {}", easy.response_code().unwrap());
+        println!("Received bytes:  {} \n", data.len());
+    }
 
     if !data.is_empty() {
         //println!("Bytes: {:?}", data);
@@ -623,12 +652,21 @@ fn getblock(myaddress: String, block: &str) -> Result<()> {
     //Read jq .result output.json into a String
     stdout.read_to_string(&mut buffer).expect("test");
 
-    println!("{}", buffer);
+
+    if no_output {
+    } else {
+        println!("\n{}", buffer);
+    }
 
     // Create a new file with result
     newfile.write_all(buffer.as_bytes()).unwrap();
     println!("\n");
-    display_menu(myaddress).unwrap();
+
+    if no_output {
+    } else {
+        display_menu(myaddress).unwrap();
+    }
+
     Ok(())
 }
 fn getpeerinfo(myaddress: String) -> Result<()> {
@@ -808,6 +846,37 @@ fn block_date(myaddress: String, block: &str) -> Result<()> {
     // Execute the command and capture the output
     let output = get_date_child.output().expect("Failed to execute command");
     println!("\n{}", String::from_utf8_lossy(&output.stdout));
+    display_menu(myaddress).unwrap();
+    Ok(())
+}
+fn deserialize_at_block(myaddress: String, block: &str) -> Result<()> {
+
+    //getblockchaininfo(myaddress.clone(), true);
+
+    getblock(myaddress.clone(), block,true).unwrap();
+
+    let file_path = "block_new.json";
+    //let my_json = input.clone();
+    //println!("{}", serde_json::to_string_pretty(&my_json).unwrap());
+    //println!("test: {}",my_json);
+    let my_json: String =
+        std::fs::read_to_string(file_path).expect("Couldn't find or load that file.");
+    let p: BlockSupplyInfo = serde_json::from_str(&my_json)?;
+
+    //let total_supply = p.chain_supply.chain_value;
+    let transparent_supply = p.value_pools[0].chain_value;
+    let sprout_supply = p.value_pools[1].chain_value;
+    let sapling_supply = p.value_pools[2].chain_value;
+    let orchard_supply = p.value_pools[3].chain_value;
+    let lockbox_supply = p.value_pools[4].chain_value;
+
+    println!("At block: {:#?}\n-------------------------------------------------", p.height);
+    println!("ZEC in the Transparent Pool | {:#?} ", transparent_supply);
+    println!("ZEC in the Sprout Pool      | {:#?}", sprout_supply);
+    println!("ZEC in the Sapling Pool     | {:#?}", sapling_supply);
+    println!("ZEC in the Orchard Pool     | {:#?}", orchard_supply);
+    println!("ZEC in the Lockbox          | {:#?}", lockbox_supply);
+
     display_menu(myaddress).unwrap();
     Ok(())
 }
