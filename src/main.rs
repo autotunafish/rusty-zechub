@@ -130,6 +130,7 @@ fn display_menu(myserver: String) -> Result<()> {
         "Blockchain Detail",
         "Extract Supply Info",
         "Extract Supply Info at Block",
+        "List Transactions of Block",
         "Transaction Detail",
         "Transaction Type",
         "Transaction Date",
@@ -179,6 +180,17 @@ fn display_menu(myserver: String) -> Result<()> {
             deserialize_at_block(myserver,&input.trim().to_string()).unwrap();
         }
         5 => {
+            //List transactions at block
+            clear_terminal_screen();
+            println!("Enter your block:\n");
+            let mut input: String = String::new(); // Create a string variable
+            std::io::stdin() // Get the standard input stream
+                .read_line(&mut input) // The read_line function reads data until it reaches a '\n' character
+                .expect("Unable to read Stdin"); // In case the read operation fails, it panics with the given message
+            clear_terminal_screen();
+            list_transactions(myserver, &input.trim().to_string()).unwrap();
+        }
+        6 => {
             //tx detail
             clear_terminal_screen();
             println!("Enter your txid:\n");
@@ -190,7 +202,7 @@ fn display_menu(myserver: String) -> Result<()> {
             clear_terminal_screen();
             tx_details(myserver, &input.trim().to_string(), false).unwrap();
         }
-        6 => {
+        7 => {
             //tx type
             clear_terminal_screen();
             println!("Enter your txid:\n");
@@ -203,7 +215,7 @@ fn display_menu(myserver: String) -> Result<()> {
             tx_details(myserver.clone(), &input.trim().to_string(), true).unwrap();
             tx_type(myserver, "txid_new.json").unwrap();
         }
-        7 => {
+        8 => {
             //tx date
             clear_terminal_screen();
             println!("Enter your txid:\n");
@@ -214,7 +226,7 @@ fn display_menu(myserver: String) -> Result<()> {
             clear_terminal_screen();
             tx_date(myserver, &input.trim().to_string()).unwrap();
         }
-        8 => {
+        9 => {
             //block detail
             clear_terminal_screen();
 
@@ -229,7 +241,7 @@ fn display_menu(myserver: String) -> Result<()> {
 
             getblock(myserver, &input.trim().to_string(),false).unwrap();
         }
-        9 => {
+        10 => {
             // block date
             clear_terminal_screen();
             println!("Enter your block:\n");
@@ -241,12 +253,12 @@ fn display_menu(myserver: String) -> Result<()> {
             block_date(myserver, &input.trim().to_string()).unwrap();
             
         }
-        10 => {
+        11 => {
             // peer details
             clear_terminal_screen();
             getpeerinfo(myserver).unwrap();
         }
-        11 => {
+        12 => {
             clear_terminal_screen();
             cleanup().unwrap();
             process::exit(1);
@@ -573,7 +585,7 @@ fn tx_details(myaddress: String, txid: &str, no_output: bool) -> Result<()> {
 fn getblock(myaddress: String, block: &str, no_output: bool) -> Result<()> {
     let mymethod = "getblock";
     let body_string = format!(
-        "{{\"jsonrpc\": \"1.0\", \"id\":\"curltest\", \"method\": \"{}\", \"params\": [\"{}\",2]}}",
+        "{{\"jsonrpc\": \"1.0\", \"id\":\"curltest\", \"method\": \"{}\", \"params\": [\"{}\",1]}}",  //Use 2 here for verbose details
         mymethod, block
     );
 
@@ -877,6 +889,30 @@ fn deserialize_at_block(myaddress: String, block: &str) -> Result<()> {
     println!("ZEC in the Orchard Pool     | {:#?}", orchard_supply);
     println!("ZEC in the Lockbox          | {:#?}", lockbox_supply);
 
+    display_menu(myaddress).unwrap();
+    Ok(())
+}
+fn list_transactions(myaddress: String,block: &str) -> Result<()> {
+    getblock(myaddress.clone(), block,true).unwrap();
+
+
+    let mut jq_child = Command::new("/usr/bin/jq")
+        .arg(".tx | reverse[]")
+        .arg("block_new.json")
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .spawn()
+        .expect("test");
+
+    let mut stdout = jq_child.stdout.take().unwrap();
+    let mut buffer = String::new();
+
+    //Read jq .result output.json into a String
+    stdout.read_to_string(&mut buffer).expect("test");
+
+   
+    println!("{}", buffer);
+    
     display_menu(myaddress).unwrap();
     Ok(())
 }
