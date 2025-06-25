@@ -9,6 +9,7 @@ A playground for RUST.
   * Exctract ZEC supply at any given block
   * Extract size of Zebra node on disk
   * Output current mempool with details
+  * List tranactions of a given block
   * View transaction details given any txid
   * View transaction type (Transparent/Sapling/Orchard) given any txid
   * Vuew transaction date given either a txid or block
@@ -43,7 +44,6 @@ enable_cookie_auth = false
 
 
 
-![Screenshot_2025-06-24_12-35-16](https://github.com/user-attachments/assets/2fb3b70d-0aa8-4b56-afce-ebe61b459853)
-
+![Screenshot_2025-06-24_22-17-48](https://github.com/user-attachments/assets/d42a4f69-c862-4db2-a8d7-04d4f417c6e0)
 
 
