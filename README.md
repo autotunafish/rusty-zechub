@@ -42,7 +42,7 @@ enable_cookie_auth = false
 * uses `jq` for JSON formatting
   * `sudo apt install jq`
 
-* chmod +x getDateFromBlock.sh getDateFromTX.sh getTXfee.sh toCurl.sh tx_type.sh txDetails.sh
+* `chmod +x getDateFromBlock.sh getDateFromTX.sh getTXfee.sh toCurl.sh tx_type.sh txDetails.sh`
 
 
 
