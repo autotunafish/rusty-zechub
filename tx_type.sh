@@ -234,6 +234,16 @@ do
     test5=$(( $test5 -1 ))
 done
 
+padding6=17
+len=${#fee}
+test6=$(( $padding6 - $len ))
+mypad6=""
+while [[ $test6 -gt 0 ]]
+do
+    mypad6="$mypad6 "
+    test6=$(( $test6 -1 ))
+done
+
 
 # Get date/time
 
@@ -269,7 +279,7 @@ else
     LIGHTRED='\033[1;31m'
     YELLOW='\033[1;33m'
 
-	echo -e "${LIGHTRED}$testTime${NC} | ${CYAN}$block${NC} | ${GREEN}$txID${NC} | ${YELLOW}$myTransferCount${NC}$mypad3 | ${RED}$fee${NC}$mypad2 | ${LIGHTPURPLE}$valueOut${NC}$mypad | ${LIGHTBLUE}$myResult${NC}"
+	echo -e "${LIGHTRED}$testTime${NC} | ${CYAN}$block${NC} | ${GREEN}$txID${NC} | ${YELLOW}$myTransferCount${NC}$mypad3 | ${RED}$fee${NC}$mypad6 | ${LIGHTPURPLE}$valueOut${NC}$mypad | ${LIGHTBLUE}$myResult${NC}"
 fi
 
 rm $txidJSON
