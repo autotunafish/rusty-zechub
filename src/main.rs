@@ -740,7 +740,7 @@ fn getpeerinfo(myaddress: String) -> Result<()> {
 
     // Open output.json with jq to make pretty
     let mut jq_child = Command::new("/usr/bin/jq")
-        .arg(".result.[].addr")
+        .arg(".result[].addr")
         .arg("peer_output.json")
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
@@ -816,6 +816,10 @@ fn cleanup() -> Result<()> {
     };
     if Path::new("peer_new.json").exists() {
         std::fs::remove_file("peer_new.json")?;
+    } else {
+    };
+    if Path::new("txidJSON").exists() {
+        std::fs::remove_file("txidJSON")?;
     } else {
     };
 
