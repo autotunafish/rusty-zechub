@@ -12,7 +12,7 @@ A playground for RUST.
   * List tranactions of a given block
   * View transaction details given any txid
   * View transaction type (Transparent/Sapling/Orchard) given any txid
-  * Vuew transaction date given either a txid or block
+  * View transaction date given either a txid or block
   * View block details given any block
   * View peers connected to your node
 
