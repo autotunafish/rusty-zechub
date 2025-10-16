@@ -477,6 +477,7 @@ fn deserialize(myaddress: String) -> Result<()> {
     let orchard_supply = p.value_pools[3].chain_value;
     let lockbox_supply = p.value_pools[4].chain_value;
 
+    println!("At block: {:#?}\n-------------------------------------------------", p.blocks);
     println!("Size of Zebra node on disk  | {:#?} bytes", p.size_on_disk);
     println!("ZEC in the Transparent Pool | {:#?} ", transparent_supply);
     println!("ZEC in the Sprout Pool      | {:#?}", sprout_supply);
