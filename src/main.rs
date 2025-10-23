@@ -113,6 +113,7 @@ impl NodeConnection {
 
 fn main() {
     let my_connection = NodeConnection {
+        //TODO make variables for the url and port, maybe set as an ARG? Otherwise just ask
         url: String::from("http://127.0.0.1"),
         port: 8232,
     };
