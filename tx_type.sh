@@ -234,16 +234,6 @@ do
     test5=$(( $test5 -1 ))
 done
 
-padding6=17
-len=${#fee}
-test6=$(( $padding6 - $len ))
-mypad6=""
-while [[ $test6 -gt 0 ]]
-do
-    mypad6="$mypad6 "
-    test6=$(( $test6 -1 ))
-done
-
 
 # Get date/time
 
@@ -277,9 +267,12 @@ else
     LIGHTBLUE='\033[1;34m'
     LIGHTPURPLE='\033[1;35m'
     LIGHTRED='\033[1;31m'
+    LIGHTGRAY='\033[0;37m'
     YELLOW='\033[1;33m'
+    ORANGE='\033[0;33m'
+    WHITE='\033[1;37m'
 
-	echo -e "${LIGHTRED}$testTime${NC} | ${CYAN}$block${NC} | ${GREEN}$txID${NC} | ${YELLOW}$myTransferCount${NC}$mypad3 | ${RED}$fee${NC}$mypad6 | ${LIGHTPURPLE}$valueOut${NC}$mypad | ${LIGHTBLUE}$myResult${NC}"
+	echo -e "${LIGHTRED}$testTime${NC} | ${CYAN}$block${NC} | ${GREEN}$txID${NC} | ${YELLOW}$myTransferCount${NC}$mypad3 | ${RED}$fee${NC}$mypad6 | ${WHITE}$finalTransparent$mypad2${NC} | ${LIGHTGREEN}$finalSapling$mypad4${NC} | ${LIGHTGRAY}$finalOrchard$mypad5${NC} | ${LIGHTBLUE}$myResult${NC} | ${ORANGE}$isCoinbase${NC}"
 fi
 
 rm $txidJSON
